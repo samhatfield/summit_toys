@@ -40,8 +40,8 @@ program main
     real(hp), allocatable :: c_hp(:,:,:)
 
     ! TensorCore inputs
-    real(hp), parameter :: alpha_tc = alpha_sp
-    real(hp), parameter :: beta_tc = beta_sp
+    real(sp), parameter :: alpha_tc = alpha_sp
+    real(sp), parameter :: beta_tc = beta_sp
     real(hp), allocatable :: a_tc(:,:,:)
     real(hp), allocatable :: b_tc(:,:,:)
     real(sp), allocatable :: c_tc(:,:,:)
@@ -186,10 +186,10 @@ program main
         #if defined _OPENACC
         call cuda_gemm_batched("N", "N",     &
                              & m, n, k,      &
-                             & alpha_hp,     &
+                             & alpha_tc,     &
                              & a_tc, lda, k, &
                              & b_tc, ldb, n, &
-                             & beta_hp,      &
+                             & beta_tc,      &
                              & c_tc, ldc, n, &
                              & batch)
         #else

@@ -24,10 +24,10 @@ cublasHandle_t handle_stcgemm;
 extern "C" void cublasSTCgemmBatched_wrapper(
   char transa, char transb,
   int m, int n, int k,
-  half alpha,
+  float alpha,
   const half *A, int lda, int tda,
   const half *B, int ldb, int tdb,
-  half beta,
+  float beta,
   float *C, int ldc, int tdc,
   int batchCount
 ){

@@ -103,14 +103,14 @@ CONTAINS
     INTEGER,                   INTENT(IN)  :: M
     INTEGER,                   INTENT(IN)  :: N
     INTEGER,                   INTENT(IN)  :: K
-    REAL(2),                   INTENT(IN)  :: ALPHA
+    REAL(4),                   INTENT(IN)  :: ALPHA
     REAL(2), DIMENSION(:,:,:), INTENT(IN)  :: AARRAY
     INTEGER,                   INTENT(IN)  :: LDA
     INTEGER,                   INTENT(IN)  :: STRIDEA
     REAL(2), DIMENSION(:,:,:), INTENT(IN)  :: BARRAY
     INTEGER,                   INTENT(IN)  :: LDB
     INTEGER,                   INTENT(IN)  :: STRIDEB
-    REAL(2),                   INTENT(IN)  :: BETA
+    REAL(4),                   INTENT(IN)  :: BETA
     REAL(4), DIMENSION(:,:,:), INTENT(OUT) :: CARRAY
     INTEGER,                   INTENT(IN)  :: LDC
     INTEGER,                   INTENT(IN)  :: STRIDEC
