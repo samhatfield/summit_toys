@@ -12,7 +12,7 @@ gpu : FORTCOMPARG = -O3 -acc -lcublas -lcudart -L${CUDA_DIR}/lib64
 cpu : FORTCOMPARG = -O3 -lblas
 
 # Define GPU target
-gpu: cublasHgemmBatched.o cublasSgemmBatched.o cuda_gemm_batched_mod.o main.o
+gpu: cublasHgemmBatched.o cublasSgemmBatched.o cublasSTCgemmBatched.o cuda_gemm_batched_mod.o main.o
 	$(FORTCOMP) $(FORTCOMPARG) -o $@ $^
 
 # Define CPU target
@@ -20,7 +20,7 @@ cpu: main.o
 	$(FORTCOMP) $(FORTCOMPARG) -o $@ $^
 
 cuda_gemm_batched_mod.o: cublas_mod.o
-cublas_mod.o: cublasHgemmBatched.o cublasSgemmBatched.o
+cublas_mod.o: cublasHgemmBatched.o cublasSgemmBatched.o cublasSTCgemmBatched.o
 
 # Define generic target for Fortran 90
 %.o: %.F90

@@ -39,6 +39,13 @@ program main
     real(hp), allocatable :: b_hp(:,:,:)
     real(hp), allocatable :: c_hp(:,:,:)
 
+    ! TensorCore inputs
+    real(hp), parameter :: alpha_tc = alpha_sp
+    real(hp), parameter :: beta_tc = beta_sp
+    real(hp), allocatable :: a_tc(:,:,:)
+    real(hp), allocatable :: b_tc(:,:,:)
+    real(sp), allocatable :: c_tc(:,:,:)
+
     integer :: i, j, l, numdevs
     real :: temp
 
@@ -58,9 +65,12 @@ program main
     allocate(a_hp(lda,k,batch))
     allocate(b_hp(ldb,n,batch))
     allocate(c_hp(ldc,n,batch))
+    allocate(a_tc(lda,k,batch))
+    allocate(b_tc(ldb,n,batch))
+    allocate(c_tc(ldc,n,batch))
 
     ! Enter data on device
-    !$acc enter data create(a_sp,b_sp,c_sp,a_hp,b_hp,c_hp)
+    !$acc enter data create(a_sp,b_sp,c_sp,a_hp,b_hp,c_hp,a_tc,b_tc,c_tc)
 
     ! Initialise double- and half-precision matrices
     do i = 1, lda
@@ -69,6 +79,7 @@ program main
                 call random_number(temp)
                 a_sp(i,j,l) = temp
                 a_hp(i,j,l) = temp
+                a_tc(i,j,l) = temp
             end do
         end do
     end do
@@ -78,12 +89,13 @@ program main
                 call random_number(temp)
                 b_sp(i,j,l) = temp
                 b_hp(i,j,l) = temp
+                b_tc(i,j,l) = temp
             end do
         end do
     end do
 
     ! Copy data to GPU
-    !$acc update device(a_sp,a_hp,b_sp,b_hp)
+    !$acc update device(a_sp,b_sp,a_hp,b_hp,a_tc,b_tc)
 
     print "(A,X,I4)", "Problem size", problem_size
     print "(A,X,I4)", "Batch size", batch
@@ -168,6 +180,27 @@ program main
     print *, " "
     print "(A,X,F5.2,X,A)", "Half-precision took", (toc - tic) / real(t_rate,8), "s"
 
+    ! Benchmark TensorCore
+    call system_clock(tic)
+    do i = 1, n_repeat
+        #if defined _OPENACC
+        call cuda_gemm_batched("N", "N",     &
+                             & m, n, k,      &
+                             & alpha_hp,     &
+                             & a_tc, lda, k, &
+                             & b_tc, ldb, n, &
+                             & beta_hp,      &
+                             & c_tc, ldc, n, &
+                             & batch)
+        #else
+        print "(A)", "CPU version does not support TensorCore"
+        #endif
+    end do
+    call system_clock(toc, t_rate)
+
+    print *, " "
+    print "(A,X,F5.2,X,A)", "TensorCore took", (toc - tic) / real(t_rate,8), "s"
+
     if (write_values) then
         print *, ""
         print "(A)", "Single-precision C"
@@ -179,9 +212,14 @@ program main
         do i = 1, min(maxprt,ldc)
             print *, real(c_hp(i,:min(maxprt,n),1),sp)
         end do
+        print *, ""
+        print "(A)", "TensorCore C"
+        do i = 1, min(maxprt,ldc)
+            print *, c_tc(i,:min(maxprt,n),1)
+        end do
     end if
     
     ! Delete data from device
-    !$acc exit data delete(a_sp,b_sp,c_sp,a_hp,b_hp,c_hp)
+    !$acc exit data delete(a_sp,b_sp,c_sp,a_hp,b_hp,c_hp,a_tc,b_tc,c_tc)
 end program main
 
