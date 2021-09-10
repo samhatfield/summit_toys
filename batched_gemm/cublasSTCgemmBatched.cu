@@ -22,14 +22,14 @@ float **Carray_stcgemm;
 cublasHandle_t handle_stcgemm;
 
 extern "C" void cublasSTCgemmBatched_wrapper(
-        char transa, char transb,
-        int m, int n, int k,
-        half alpha,
-        const half *A, int lda, int tda,
-        const half *B, int ldb, int tdb,
-        half beta,
-        float *C, int ldc, int tdc,
-        int batchCount
+  char transa, char transb,
+  int m, int n, int k,
+  half alpha,
+  const half *A, int lda, int tda,
+  const half *B, int ldb, int tdb,
+  half beta,
+  float *C, int ldc, int tdc,
+  int batchCount
 ){
   // Define CUBLAS operation handles
   cublasOperation_t op_t1, op_t2;
@@ -46,9 +46,9 @@ extern "C" void cublasSTCgemmBatched_wrapper(
 
   // Allocate host arrays
   if (!alreadyAllocated_stcgemm) {
-    cudaMallocHost(&Aarray_stcgemm,batchCount*sizeof(half*));
-    cudaMallocHost(&Barray_stcgemm,batchCount*sizeof(half*));
-    cudaMallocHost(&Carray_stcgemm,batchCount*sizeof(float*));
+    cudaMallocHost(&Aarray_stcgemm, batchCount*sizeof(half*));
+    cudaMallocHost(&Barray_stcgemm, batchCount*sizeof(half*));
+    cudaMallocHost(&Carray_stcgemm, batchCount*sizeof(float*));
     alreadyAllocated_stcgemm = true;
   }
 
