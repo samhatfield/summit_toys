@@ -12,7 +12,7 @@ program main
 
     ! Number of repetitions, batch size and problem size
     integer, parameter :: n_repeat = 100
-    integer, parameter :: batch = 10
+    integer, parameter :: batch = 1
     integer, parameter :: problem_size = PROBLEM_SIZE
 
     ! GEMM properties
@@ -157,7 +157,7 @@ program main
     call system_clock(toc, t_rate)
 
     print *, " "
-    print "(A,X,F5.2,X,A)", "Single-precision took", (toc - tic) / real(t_rate,8), "s"
+    print "(A,X,F9.2,X,A)", "Single-precision took", (toc - tic) / real(t_rate,8), "s"
 
     ! Benchmark half-precision
     call system_clock(tic)
@@ -178,7 +178,7 @@ program main
     call system_clock(toc, t_rate)
 
     print *, " "
-    print "(A,X,F5.2,X,A)", "Half-precision took", (toc - tic) / real(t_rate,8), "s"
+    print "(A,X,F9.2,X,A)", "Half-precision took", (toc - tic) / real(t_rate,8), "s"
 
     ! Benchmark TensorCore
     call system_clock(tic)
@@ -199,7 +199,7 @@ program main
     call system_clock(toc, t_rate)
 
     print *, " "
-    print "(A,X,F5.2,X,A)", "TensorCore took", (toc - tic) / real(t_rate,8), "s"
+    print "(A,X,F9.2,X,A)", "TensorCore took", (toc - tic) / real(t_rate,8), "s"
 
     if (write_values) then
         print *, ""
@@ -218,8 +218,24 @@ program main
             print *, c_tc(i,:min(maxprt,n),1)
         end do
     end if
+
+    print *, " "
+    print "(A)", "Relative errors compared with single precision (%)"
+    print "(A)", "Half precision"
+    print "(F10.8)", avg_rel_diff(c_sp, real(c_hp,sp))
+    print "(A)", "TensorCore"
+    print "(F10.8)", avg_rel_diff(c_sp, c_tc)
     
     ! Delete data from device
     !$acc exit data delete(a_sp,b_sp,c_sp,a_hp,b_hp,c_hp,a_tc,b_tc,c_tc)
+
+contains
+    real(sp) function avg_rel_diff(array_1, array_2)
+        real(sp), intent(in) :: array_1(:,:,:), array_2(:,:,:)
+
+        avg_rel_diff = sum(abs((array_1 - array_2)/array_1))/(100.0_sp*size(array_1))
+
+!        frobenius_norm = sqrt(sum(in_array**2.0_sp))
+    end function avg_rel_diff
 end program main
 
